@@ -57,9 +57,13 @@ python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 
-npm install --prefix backend
-npm install --prefix frontend
+npm ci --prefix backend
+npm ci --prefix frontend
+
+cp backend/.env.example backend/.env
 ```
+
+`backend/.env`에 로컬 DB 연결 정보와 서로 다른 두 JWT 비밀값을 입력합니다. DB를 사용하는 두 진입점은 같은 환경변수 기반 연결 풀을 공유합니다. 뉴스 처리의 `NAVER_CLIENT_ID`, `NAVER_CLIENT_SECRET`, `OPENAI_API_KEY`와 DB 환경변수는 Python 실행 환경에도 별도로 설정해야 합니다. `.env`와 생성 데이터는 Git에 포함하지 않습니다.
 
 각 프로세스는 별도 터미널에서 실행합니다.
 
@@ -75,6 +79,29 @@ npm start --prefix frontend
 ```
 
 프론트엔드 API 기본 주소는 `http://localhost:8080/api`이며 `REACT_APP_API_URL`로 설정할 수 있습니다. 서버의 Swagger 경로는 `/api-docs`입니다.
+
+## 빌드와 검사
+
+```bash
+# TypeScript 컴파일 + Swagger YAML 복사 + 외부 연결 없는 구성 검사
+npm test --prefix backend
+
+# 생성된 서버 실행 (먼저 backend/.env 설정)
+npm start --prefix backend
+
+# 프론트엔드 빌드와 외부 요청 없는 홈·로그인 경로 검사
+npm run build --prefix frontend
+CI=true npm test --prefix frontend -- --watchAll=false --runInBand
+```
+
+`backend/dist/`는 빌드 결과이므로 Git에서 관리하지 않습니다. 빌드 시
+`backend/src/swagger/*.yaml`도 함께 복사됩니다. Python의 `model/results/` 역시
+실행 시 생성됩니다.
+
+`model/test.py`와 `model/test_pipeline/`은 과거 실험용 파이프라인입니다.
+`model/main.py`와 일부 처리 방식이 달라 연구 기록으로 유지합니다.
+이름에 `test`가 있지만 외부 뉴스 API·LLM·DB를 사용하는 실행 코드이며,
+오프라인 단위 테스트가 아닙니다.
 
 ## 현재 범위
 
