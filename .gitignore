@@ -1,0 +1,21 @@
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+
+# Dependencies and generated builds
+node_modules/
+backend/dist/
+frontend/build/
+coverage/
+
+# Python environments and generated pipeline data
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+model/results/
+
+# Local editor / OS files
+.DS_Store
+.ipynb_checkpoints/
